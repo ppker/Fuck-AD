@@ -19,7 +19,7 @@ object Bilibili : Hooker() {
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
         "tv.danmaku.bili.ui.splash.ad.page.FullImageSplash".toClassOrNull()
                 ?.methods("y6")
-                ?.hooks {
+                ?.hook {
                     after {
                         val view = getField(instance(), "v") as View
                         Handler(Looper.getMainLooper()).postDelayed({

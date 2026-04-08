@@ -172,14 +172,14 @@ abstract class Hooker {
         hookInternal(dsl)
     }
 
-    fun List<Method>?.hooks(block: HookDsl.() -> Unit) {
+    fun List<Method>?.hook(block: HookDsl.() -> Unit) {
         if (this.isNullOrEmpty()) return
         asSequence()
             .distinctBy { it.toGenericString() }
             .forEach { method -> method.hook(block) }
     }
 
-    fun Array<Method>?.hooks(block: HookDsl.() -> Unit) {
+    fun Array<Method>?.hook(block: HookDsl.() -> Unit) {
         if (this.isNullOrEmpty()) return
         asSequence()
             .distinctBy { it.toGenericString() }

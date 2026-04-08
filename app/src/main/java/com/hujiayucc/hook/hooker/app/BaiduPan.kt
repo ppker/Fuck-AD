@@ -20,7 +20,7 @@ object BaiduPan : Hooker() {
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
         loadSdk(this, pangle = true)
         "com.qumeng.advlib.__remote__.ui.elements.SplashCountdownView".toClass()
-            .methods.hooks {
+            .methods.hook {
                 after {
                     val view = instance<View>()
                     if (view.isClickable) view.performClick()
@@ -37,7 +37,7 @@ object BaiduPan : Hooker() {
             }
 
         "com.baidu.sdk.container.widget.RectangleCountDownView".toClass()
-            .methods.hooks {
+            .methods.hook {
                 after {
                     val view = instance<View>()
                     if (view.isClickable) view.performClick()

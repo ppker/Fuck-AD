@@ -8,7 +8,7 @@ import io.github.libxposed.api.XposedModuleInterface
 object Pangle : Hooker() {
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
         "com.bytedance.sdk.openadsdk.TTAdSdk".toClassOrNull()
-            ?.declaredMethods?.hooks {
+            ?.declaredMethods?.hook {
                 before {
                     result = when (chain.proceed()) {
                         is Boolean -> false
@@ -18,7 +18,7 @@ object Pangle : Hooker() {
             }
 
         "com.bytedance.sdk.openadsdk.api.ln".toClassOrNull()
-            ?.declaredMethods?.hooks {
+            ?.declaredMethods?.hook {
                 before {
                     result = when (chain.proceed()) {
                         is Boolean -> false
@@ -28,7 +28,7 @@ object Pangle : Hooker() {
             }
 
         "com.bytedance.sdk.openadsdk.core.AdSdkInitializerHolder".toClassOrNull()
-            ?.declaredMethods?.hooks {
+            ?.declaredMethods?.hook {
                 before {
                     result = when (chain.proceed()) {
                         is Boolean -> false
@@ -38,7 +38,7 @@ object Pangle : Hooker() {
             }
 
         "com.bytedance.sdk.openadsdk.CSJConfig".toClassOrNull()
-            ?.declaredMethods?.hooks {
+            ?.declaredMethods?.hook {
                 before {
                     result = when (chain.proceed()) {
                         is Boolean -> false
@@ -48,7 +48,7 @@ object Pangle : Hooker() {
             }
 
         $$"com.bytedance.sdk.openadsdk.AdSlot$Builder".toClassOrNull()
-            ?.declaredMethods?.hooks {
+            ?.declaredMethods?.hook {
                 before {
                     result = when (chain.proceed()) {
                         is Boolean -> false
@@ -58,7 +58,7 @@ object Pangle : Hooker() {
             }
 
         "com.bytedance.sdk.openadsdk.core.component.splash.countdown.TTCountdownViewForCircle".toClassOrNull()
-            ?.declaredMethods?.hooks {
+            ?.declaredMethods?.hook {
                 after {
                     val view = chain.thisObject as View
                     view.performClick()

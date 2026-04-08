@@ -18,7 +18,7 @@ object BanShengHuo : Hooker() {
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
         "com.banshenghuo.mobile.modules.SplashActivity".toClass()
             .methods("initData")
-            .hooks {
+            .hook {
                 replaceUnit {
                     val activity = instance<Activity>()
                     val intent =

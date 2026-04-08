@@ -13,7 +13,7 @@ object KW : Hooker() {
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
         "com.duowan.kiwi.adsplash.view.AdSplashFragment".toClassOrNull()
             ?.methods("findViews")
-            ?.hooks {
+            ?.hook {
                 after {
                     runCatching {
                         val view = (chain.args[0] as View).findViewById<View>(0x7f0923c9)
@@ -23,7 +23,7 @@ object KW : Hooker() {
             }
 
         "com.kwad.components.ad.splashscreen.widget.CircleSkipView".toClassOrNull()
-            ?.declaredMethods?.hooks {
+            ?.declaredMethods?.hook {
                 after {
                     val handler = Handler(Looper.getMainLooper())
                     handler.postDelayed({
