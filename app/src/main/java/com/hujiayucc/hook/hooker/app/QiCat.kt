@@ -12,10 +12,6 @@ import org.luckypray.dexkit.DexKitBridge
     action = "开屏广告"
 )
 object QiCat : Hooker() {
-    init {
-        System.loadLibrary("dexkit")
-    }
-
     private fun DexKitBridge.add(
         searchPackages: String,
         method: String,

@@ -8,10 +8,7 @@ import android.window.OnBackInvokedDispatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.hujiayucc.hook.application.XYApplication
-import com.hujiayucc.hook.databinding.ActivityAppInfoBinding
-import com.hujiayucc.hook.databinding.ActivitySdkBinding
 import io.github.libxposed.service.XposedService
-import java.lang.reflect.ParameterizedType
 import java.util.*
 
 abstract class BaseActivity<T : Any> : AppCompatActivity(), XYApplication.ServiceStateListener {
@@ -27,20 +24,6 @@ abstract class BaseActivity<T : Any> : AppCompatActivity(), XYApplication.Servic
         override fun onLowMemory() {}
 
         override fun onTrimMemory(level: Int) {}
-    }
-
-    protected val typeToken: Class<T> by lazy {
-        val superclass = this::class.java.genericSuperclass
-        if (superclass is ParameterizedType) {
-            val typeArguments = superclass.actualTypeArguments
-            if (typeArguments.isNotEmpty()) {
-                typeArguments[0] as Class<T>
-            } else {
-                throw IllegalStateException("No generic type parameter found")
-            }
-        } else {
-            throw IllegalStateException("No generic type parameter found")
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,9 +46,9 @@ abstract class BaseActivity<T : Any> : AppCompatActivity(), XYApplication.Servic
     }
 
     private fun handleBackPressed() {
-        val cls = when (typeToken) {
-            ActivityAppInfoBinding::class.java -> SDKActivity::class.java
-            ActivitySdkBinding::class.java -> MainActivity::class.java
+        val cls = when (this) {
+            is AppInfoActivity -> SDKActivity::class.java
+            is SDKActivity -> MainActivity::class.java
             else -> null
         }
         cls?.let {

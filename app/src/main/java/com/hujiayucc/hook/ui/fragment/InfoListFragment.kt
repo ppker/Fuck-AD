@@ -10,7 +10,6 @@ import android.widget.ListView
 import androidx.fragment.app.Fragment
 import com.hujiayucc.hook.databinding.FragmentAppInfoListBinding
 import com.hujiayucc.hook.ui.adapter.InfoListAdapter
-import io.github.libxposed.service.XposedService
 import java.util.*
 
 class InfoListFragment : Fragment() {

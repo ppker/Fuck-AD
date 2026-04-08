@@ -12,11 +12,6 @@ import org.luckypray.dexkit.query.enums.StringMatchType
     action = "解锁会员"
 )
 object XiaoBaiRecord : Hooker() {
-
-    init {
-        System.loadLibrary("dexkit")
-    }
-
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
         val boolMap = emptyMap<String, String>().toMutableMap()
         DexKitBridge.create(applicationInfo.sourceDir).use { bridge ->

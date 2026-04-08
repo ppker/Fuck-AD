@@ -51,6 +51,8 @@ android {
         }
 
         getByName("debug") {
+            isMinifyEnabled = true
+            isShrinkResources = true
             // 版本后缀
             // versionNameSuffix = "-debug"
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

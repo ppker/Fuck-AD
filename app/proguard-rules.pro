@@ -1,8 +1,8 @@
--dontobfuscate
 -keep class com.hujiayucc.hook.ModuleMain { *; }
--keep class * extends com.hujiayucc.hook.annotation.* { *; }
+-keep @interface com.hujiayucc.hook.annotation.Run
+-keep @interface com.hujiayucc.hook.annotation.RunJiaGu
+-keep @com.hujiayucc.hook.annotation.Run class * { *; }
+-keep @com.hujiayucc.hook.annotation.RunJiaGu class * { *; }
 -dontwarn **
 
--keepattributes *Annotation*
--keep class androidx.tracing.** { *; }
--keep class androidx.core.math.MathUtils { *; }
+-keepattributes Signature,InnerClasses,EnclosingMethod,*Annotation*
