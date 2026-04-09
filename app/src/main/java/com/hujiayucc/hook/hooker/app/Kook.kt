@@ -1,6 +1,9 @@
 package com.hujiayucc.hook.hooker.app
 
-import android.widget.LinearLayout
+import android.os.Handler
+import android.os.Looper
+import android.view.View
+import android.widget.TextView
 import com.hujiayucc.hook.annotation.RunJiaGu
 import com.hujiayucc.hook.hooker.util.Hooker
 import io.github.libxposed.api.XposedModuleInterface
@@ -15,13 +18,22 @@ import io.github.libxposed.api.XposedModuleInterface
 )
 object Kook : Hooker() {
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
-        loadSdk(this, pangle = true)
-        LinearLayout::class.java.method("onDraw")
-            .hook {
-                after {
-                    val layout = instance as LinearLayout
-                    if (layout.id == 0x7f0a0a51) layout.performClick()
+        TextView::class.java.method("onDraw").hook {
+            after {
+                val textView = instance<TextView>()
+                if (textView.id == 0x70030083) {
+                    runMain { textView.performClick() }
                 }
             }
+        }
+
+        View::class.java.method("onDraw").hook {
+            after {
+                val view = instance<View>()
+                if (view.javaClass.name == "cj.mobile.jt.core.ui.widget.CountdownView") {
+                    runMain { view.performClick() }
+                }
+            }
+        }
     }
 }

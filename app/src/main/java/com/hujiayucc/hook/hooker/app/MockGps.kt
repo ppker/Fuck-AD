@@ -22,12 +22,11 @@ object MockGps : Hooker() {
             ?.method("setImageDrawable")
             ?.hook {
                 after {
-                    val handler = Handler(Looper.getMainLooper())
                     val view = instance as View
                     if (view.id == 0x7f080254) {
-                        handler.postDelayed({
+                        runMainDelayed(200) {
                             view.performClick()
-                        }, 200)
+                        }
                     }
                 }
             }

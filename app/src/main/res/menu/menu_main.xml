@@ -41,6 +41,11 @@
             android:checkable="true" />
 
     <item
+            android:id="@+id/menu_error_log"
+            android:title="@string/error_log"
+            android:checkable="true"/>
+
+    <item
             android:id="@+id/menu_sdk"
             android:title="@string/sdks"
             app:showAsAction="always" />

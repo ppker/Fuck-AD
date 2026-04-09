@@ -23,8 +23,8 @@ class ModuleMain : XposedModule() {
         private const val PREFS_NAME = "config"
         private const val BASE_APK_SUFFIX = "/base.apk"
         private const val HOOKER_PACKAGE = "com.hujiayucc.hook.hooker.app"
-        private val BUILTIN_HOOKERS = listOf(Loader, ClickInfo)
-        private val SDK_HOOKERS = listOf(GDT, KW, Pangle)
+        val BUILTIN_HOOKERS = listOf(Loader, ClickInfo)
+        val SDK_HOOKERS = listOf(GDT, KW, Pangle)
 
         lateinit var prefs: SharedPreferences
             private set
@@ -74,6 +74,7 @@ class ModuleMain : XposedModule() {
 
     override fun onPackageReady(param: XposedModuleInterface.PackageReadyParam) {
         try {
+            if (!param.applicationInfo.sourceDir.endsWith(BASE_APK_SUFFIX)) return
             if (hookers.isNotEmpty()) {
                 hookers.forEach { it.call(param) }
                 hookers.clear()
@@ -86,6 +87,6 @@ class ModuleMain : XposedModule() {
     }
 
     private fun logIfDebug(stage: String, error: Exception) {
-        if (BuildConfig.DEBUG) log(Log.ERROR, TAG, "$stage error", error)
+        if (prefs.getBoolean("errorLog", false)) log(Log.ERROR, TAG, "$stage error", error)
     }
 }

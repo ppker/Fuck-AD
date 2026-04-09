@@ -1,6 +1,5 @@
 package com.hujiayucc.hook.hooker.util
 
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.hujiayucc.hook.ModuleMain
@@ -31,28 +30,19 @@ object ClickInfo : Hooker() {
     val stackTrack: Boolean get() = ModuleMain.prefs.getBoolean("stackTrack", false)
 
     private fun printStackTrace(throwable: Throwable) {
-        ModuleMain.module.log(Log.DEBUG, "Fuck AD", "", throwable)
+        logD("StackTrace:", throwable)
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     private fun printInfo(view: View) {
-        val id = view.id
-        val resName: String = AppInfoUtil.getResourceName(view, id)
-        val text = if (view is TextView) view.text.toString() else ""
-
-        // 获取当前 Activity
-        val activity = AppInfoUtil.getActivityFromView(view)
-        val activityName = activity?.javaClass?.name ?: "Unknown"
-
         // 输出完整信息
-        ModuleMain.module.log(
-            Log.DEBUG, "Fuck AD",
+        logD(
             """
                 ====== 点击事件详情 ======
                 View 类: ${view::class.java.name}
-                View ID: 0x${view.id.toHexString()} $resName
-                View 文本: $text
-                所在 Activity: $activityName
+                View 父类：${view.javaClass.superclass?.name ?: "Unknown"}
+                View ID: 0x${view.id.toHexString()} ${AppInfoUtil.getResourceName(view, view.id)}
+                View 文本: ${if (view is TextView) view.text.toString() else ""}
+                所在 Activity: ${AppInfoUtil.getActivityFromView(view)?.javaClass?.name ?: "Unknown"}
             """.trimIndent()
         )
     }

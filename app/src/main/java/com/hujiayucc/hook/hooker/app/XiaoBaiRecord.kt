@@ -13,7 +13,6 @@ import org.luckypray.dexkit.query.enums.StringMatchType
 )
 object XiaoBaiRecord : Hooker() {
     override fun XposedModuleInterface.PackageReadyParam.onPackageReady() {
-        val boolMap = emptyMap<String, String>().toMutableMap()
         DexKitBridge.create(applicationInfo.sourceDir).use { bridge ->
             // 设置会员
             bridge.findMethod {
@@ -23,6 +22,8 @@ object XiaoBaiRecord : Hooker() {
                     returnType = "boolean"
                     addUsingString("key_debug_force_vip", StringMatchType.Equals)
                 }
+            }.forEach { method ->
+                method.getMethodInstance(classLoader).hook { replaceTo(true) }
             }
 
             // 免登录
@@ -33,6 +34,8 @@ object XiaoBaiRecord : Hooker() {
                     name = "isLogin"
                     returnType = "boolean"
                 }
+            }.forEach { method ->
+                method.getMethodInstance(classLoader).hook { replaceTo(true) }
             }
             bridge.close()
         }

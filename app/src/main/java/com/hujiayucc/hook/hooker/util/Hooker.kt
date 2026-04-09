@@ -1,9 +1,13 @@
 package com.hujiayucc.hook.hooker.util
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.hujiayucc.hook.ModuleMain.Companion.module
+import com.hujiayucc.hook.ModuleMain.Companion.prefs
 import com.hujiayucc.hook.annotation.Run
 import com.hujiayucc.hook.annotation.RunJiaGu
 import com.hujiayucc.hook.hooker.sdk.GDT
@@ -17,47 +21,82 @@ import java.lang.reflect.Method
 
 @Suppress("UNCHECKED_CAST")
 abstract class Hooker {
-    companion object {
-        lateinit var classLoader: ClassLoader
-            private set
-    }
-
     private object UnsetResult
 
     protected lateinit var appName: String
     protected lateinit var action: String
+    protected var classLoader: ClassLoader? = null
 
     abstract fun XposedModuleInterface.PackageReadyParam.onPackageReady()
     fun call(param: XposedModuleInterface.PackageReadyParam) {
-        try {
-            classLoader = param.classLoader
-            appName = this::class.java.annotations.filterIsInstance<Run>().first().appName
-            action = this::class.java.annotations.filterIsInstance<Run>().first().action
-        } catch (_: NoSuchElementException) {
-            runCatching {
-                appName = this::class.java.annotations.filterIsInstance<RunJiaGu>().first().appName
-                action = this::class.java.annotations.filterIsInstance<RunJiaGu>().first().action
-                module.hook(Application::class.java.method("attachBaseContext"))
-                    .intercept {
-                        val context = it.args[0] as Context
-                        classLoader = context.classLoader
-                        module.log(Log.INFO, "Fuck AD", "Set $appName real classloader.")
-                        it.proceed()
-                    }
+        classLoader = param.classLoader
+        var isJiaGu = false
+        this.javaClass.annotations.forEach { annotation ->
+            when (annotation) {
+                is Run -> {
+                    appName = annotation.appName
+                    action = annotation.action
+                }
+
+                is RunJiaGu -> {
+                    appName = annotation.appName
+                    action = annotation.action
+                    isJiaGu = true
+                }
             }
         }
 
-        param.onPackageReady()
+        if (isJiaGu) {
+            try {
+                classLoader = getRealClassLoader()
+            } catch (e: Exception) {
+                if (prefs.getBoolean("errorLog", false))
+                    logE("Failed to get real ClassLoader for $appName", e)
+            }
+        }
+
+        param.runHook()
+    }
+
+    @SuppressLint("PrivateApi", "DiscouragedPrivateApi")
+    private fun getRealClassLoader(): ClassLoader {
+        val threadCl = Thread.currentThread().contextClassLoader
+        if (threadCl != null && threadCl !== classLoader) return threadCl
+
+        var realClassLoader: ClassLoader? = null
+        module.hook(Application::class.java.method("attachBaseContext")).intercept { chain ->
+            val result = chain.proceedWith(chain.thisObject, chain.args.toTypedArray())
+            val context = chain.args[0] as Context
+            realClassLoader = context.classLoader
+            result
+        }
+
+        if (realClassLoader != null && realClassLoader !== classLoader) return realClassLoader
+
+        try {
+            val activityThread = Class.forName("android.app.ActivityThread")
+            val currentApp = activityThread.getDeclaredMethod("currentApplication").invoke(null) as? Application
+            currentApp?.classLoader?.let { appCl ->
+                if (appCl !== classLoader) return appCl
+            }
+        } catch (_: Throwable) {}
+
+        return classLoader!!
+    }
+
+    fun XposedModuleInterface.PackageReadyParam.runHook() {
+        onPackageReady()
         runCatching { module.log(Log.INFO, "Fuck AD", "$appName => $action") }
     }
 
+    @Throws(ClassNotFoundException::class)
     fun String.toClass(): Class<*> {
-        return classLoader.loadClass(this)
+        return classLoader?.loadClass(this) ?: throw ClassNotFoundException(this)
     }
 
     fun String.toClassOrNull(): Class<*>? {
         return try {
-            classLoader.loadClass(this)
+            classLoader?.loadClass(this)
         } catch (_: ClassNotFoundException) {
             null
         }
@@ -80,6 +119,10 @@ abstract class Hooker {
 
     fun Class<*>.methods(name: String): List<Method> {
         return declaredMethods.filter { it.name == name }
+    }
+
+    fun Class<*>.methodContains(name: String): List<Method> {
+        return declaredMethods.filter { it.name.contains(name) }
     }
 
     class HookDsl internal constructor() {
@@ -209,6 +252,30 @@ abstract class Hooker {
         GDT.call(param)
         KW.call(param)
         Pangle.call(param)
+    }
+
+    protected fun logI(message: String, throwable: Throwable? = null) {
+        module.log(Log.INFO, "Fuck AD", message, throwable)
+    }
+
+    protected fun logD(message: String, throwable: Throwable? = null) {
+        module.log(Log.DEBUG, "Fuck AD", message, throwable)
+    }
+
+    protected fun logE(message: String, throwable: Throwable? = null) {
+        module.log(Log.ERROR, "Fuck AD", message, throwable)
+    }
+
+    protected fun logW(message: String, throwable: Throwable? = null) {
+        module.log(Log.WARN, "Fuck AD", message, throwable)
+    }
+
+    protected inline fun runMain(crossinline function: () -> Unit) {
+        Handler(Looper.getMainLooper()).post { function() }
+    }
+
+    protected inline fun runMainDelayed(delayMillis: Long, crossinline function: () -> Unit) {
+        Handler(Looper.getMainLooper()).postDelayed({ function() }, delayMillis)
     }
 
     val HookCallback.instance: Any get() = chain.thisObject

@@ -22,7 +22,9 @@ object DouYin : Hooker() {
                     instance.javaClass.fields.forEach { field ->
                         if (field.type.name == "com.ss.android.excitingvideo.sdk.ExcitingVideoFragment") {
                             val obj = getField(instance, field.name)
-                            Handler(Looper.getMainLooper()).postDelayed(obj!!.runnable(instance), 1000)
+                            runMainDelayed(1000) {
+                                obj!!.runnable(instance)
+                            }
                             return@after
                         }
                     }
@@ -35,7 +37,7 @@ object DouYin : Hooker() {
         if (any is Activity) any.finish()
     }
 
-    fun Any.check(): Boolean {
+    private fun Any.check(): Boolean {
         try {
             val method = this.javaClass.method("sendRewardWhenLiveNotAvailable")
             method.isAccessible = true

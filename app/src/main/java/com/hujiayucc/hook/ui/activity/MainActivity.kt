@@ -201,6 +201,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         prefsBridge.getString(language, "system")?.let { updateLanguageSelection(menu, it) }
         menu.findItem(R.id.menu_click_info)?.isChecked = prefsBridge.getBoolean("clickInfo", false)
         menu.findItem(R.id.menu_stack_track)?.isChecked = prefsBridge.getBoolean("stackTrack", false)
+        menu.findItem(R.id.menu_error_log)?.isChecked = prefsBridge.getBoolean("errorLog", false)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -283,6 +284,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             R.id.menu_sdk -> {
                 val intent = Intent(this, SDKActivity::class.java)
                 startActivity(intent)
+                true
+            }
+
+            R.id.menu_error_log -> {
+                prefsBridge.edit { putBoolean("errorLog", !item.isChecked) }
+                item.isChecked = !item.isChecked
                 true
             }
 
