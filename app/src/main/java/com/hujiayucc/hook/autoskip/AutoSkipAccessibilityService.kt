@@ -249,7 +249,6 @@ class AutoSkipAccessibilityService : AccessibilityService() {
         }
 
         private fun createNotificationChannel(context: Context) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
             val manager = context.getSystemService(NotificationManager::class.java)
             if (manager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) return
             manager.createNotificationChannel(
